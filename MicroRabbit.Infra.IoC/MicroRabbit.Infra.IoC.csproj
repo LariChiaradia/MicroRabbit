@@ -7,6 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.2.0" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="8.0.0" />
   </ItemGroup>
 
@@ -16,6 +17,8 @@
     <ProjectReference Include="..\MicroRabbit.Banking.Domain\MicroRabbit.Banking.Domain.csproj" />
     <ProjectReference Include="..\MicroRabbit.Domain.Core\MicroRabbit.Domain.Core.csproj" />
     <ProjectReference Include="..\MicroRabbit.Infra.Bus\MicroRabbit.Infra.Bus.csproj" />
+    <ProjectReference Include="..\MicroRabbit.Transfer.Application\MicroRabbit.Transfer.Application.csproj" />
+    <ProjectReference Include="..\MicroRabbit.Transfer.Data\MicroRabbit.Transfer.Data.csproj" />
   </ItemGroup>
 
 </Project>

@@ -8,6 +8,13 @@ using MicroRabbit.Banking.Domain.Commands;
 using MicroRabbit.Banking.Domain.Interfaces;
 using MicroRabbit.Domain.Core.Bus;
 using MicroRabbit.Infra.Bus;
+using MicroRabbit.Transfer.Application.Interfaces;
+using MicroRabbit.Transfer.Application.Services;
+using MicroRabbit.Transfer.Data.Context;
+using MicroRabbit.Transfer.Data.Repository;
+using MicroRabbit.Transfer.Domain.EventHandlers;
+using MicroRabbit.Transfer.Domain.Events;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
@@ -26,17 +33,35 @@ namespace MicroRabbit.Infra.IoC
             services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly()));
 
             //Domain Bus
-            services.AddTransient<IEventBus, RabbitMQBus>();
+            services.AddSingleton<IEventBus, RabbitMQBus>(sp =>
+            {
+                var scopeFactory = sp.GetRequiredService<IServiceScopeFactory>();
+                return new RabbitMQBus(sp.GetService<IMediator>(), scopeFactory);
+            });
+
+            //Subscriptions
+            services.AddTransient<TransferEventHandler>();
+
+            //Domain Events
+            services.AddTransient<IEventHandler<TransferCreatedEvent>, TransferEventHandler>();
 
             //Domain Banking Domain
             services.AddTransient<IRequestHandler<CreateTransferCommand, bool>, TransferCommandHandler>();
 
             //Application Services
             services.AddTransient<IAccountService, AccountService>();
+            services.AddTransient<ITransferService, TransferService>();
 
             //Data
             services.AddTransient<IAccountRepository, AccountRepository>();
+            services.AddTransient<ITransferRepository, TransferRepository>();
             services.AddTransient<AppDbContext>();
+            services.AddTransient<TransferDbContext>();
         }
+        public static void ConfigureBus(IApplicationBuilder app)
+        {
+            var eventBus = app.ApplicationServices.GetRequiredService<IEventBus>();
+            eventBus.Subscribe<TransferCreatedEvent, TransferEventHandler>();
+        } 
     }
 }

@@ -1,15 +1,34 @@
+using MicroRabbit.Infra.IoC;
+using MicroRabbit.Transfer.Data.Context;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.OpenApi.Models;
+
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+
 
 builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(c =>
+{
+    c.SwaggerDoc("v1", new OpenApiInfo { Title = "Transfer Microservice", Version = "v1" });
+});
+
+var mySqlConnection = builder.Configuration.GetConnectionString("TransferConnection");
+
+builder.Services.AddDbContext<TransferDbContext>(options =>
+{
+    options.UseMySql(mySqlConnection,
+        ServerVersion.AutoDetect(mySqlConnection));
+});
+
+DependencyContainer.RegisterServices(builder.Services);
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+DependencyContainer.ConfigureBus(app);
+
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -17,6 +36,12 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+app.UseSwagger();
+app.UseSwaggerUI(c =>
+{
+    c.SwaggerEndpoint("/swagger/v1/swagger.json", "Banking Microservice V1");
+});
 
 app.UseAuthorization();
 

@@ -6,4 +6,14 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <Folder Include="CommandHandlers\" />
+    <Folder Include="Commands\" />
+    <Folder Include="Interfaces\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\MicroRabbit.Domain.Core\MicroRabbit.Domain.Core.csproj" />
+  </ItemGroup>
+
 </Project>
